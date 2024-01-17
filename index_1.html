@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Postmortem</title>
+</head>
+
+<body>
+  <div id="formulario">
+    <h1>Buscar postmortem</h1>
+    <label for="text-numero-id">Número de ID:</label>
+    <input type="text" id="text-numero-id" />
+    <button id="btn-buscar-id">Buscar</button>
+  </div>
+
+  <div id="container">
+    <div id="resposta_jira">
+      <label for="titulo">Título:</label>
+      <span id="titulo"></span><br>
+
+      <label for="areaResponsavel">Área Responsável:</label>
+      <span id="areaResponsavel"></span><br>
+
+      <label for="causaRaiz">Causa Raiz:</label>
+      <span id="causaRaiz"></span><br>
+
+      <label for="licaoAprendida">Lições Aprendidas:</label>
+      <span id="licaoAprendida"></span><br>
+
+      <label for="acaoGerada">Ação Gerada:</label>
+      <span id="acaoGerada"></span><br>
+
+      <label for="responsavel">Responsável:</label>
+      <span id="responsavel"></span><br>
+
+      <label for="resumoFalha">Resumo da Falha:</label>
+      <span id="resumoFalha"></span><br>
+
+      <label for="impacto">Impacto:</label>
+      <span id="impacto"></span><br>
+
+      <label for="dataFinal">Data Final:</label>
+      <span id="dataFinal"></span><br>
+
+      <label for="dataInicio">Data Início:</label>
+      <span id="dataInicio"></span><br>
+    </div>
+  </div>
+
+  <button id="btn-validar-postmortem" onclick="validarPostmortem()">Validar Postmortem</button>
+  <div id="resposta_chat"></div>
+
+  <script>
+    document.getElementById('btn-buscar-id').addEventListener('click', function () {
+      document.getElementById('btn-buscar-id').value = 'Pesquisando';
+      const numId = document.getElementById('text-numero-id').value;
+
+      fetch(`http://localhost:3000/api/issue/${numId}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erro na requisição:' + response.status + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          window.resultadoBusca = {
+            titulo: data.fields.summary,
+            areaResponsavel: data.fields.customfield_10038,
+            cauzaRaiz: data.fields.customfield_10039,
+            licaoAprendida: data.fields.customfield_10040,
+            acaoGerada: data.fields.customfield_10041,
+            responsavel: data.fields.customfield_10042,
+            resumoFalha: data.fields.customfield_10034,
+            impacto: data.fields.customfield_10035,
+            dataFinal: data.fields.customfield_10036,
+            dataInicio: data.fields.customfield_10037,
+          };
+
+          document.getElementById('titulo').innerText = window.resultadoBusca.titulo;
+          document.getElementById('areaResponsavel').innerText = window.resultadoBusca.areaResponsavel;
+          document.getElementById('causaRaiz').innerText = window.resultadoBusca.causaRaiz;
+          document.getElementById('licaoAprendida').innerText = window.resultadoBusca.licaoAprendida;
+          document.getElementById('acaoGerada').innerText = window.resultadoBusca.acaoGerada;
+          document.getElementById('responsavel').innerText = window.resultadoBusca.responsavel;
+          document.getElementById('resumoFalha').innerText = window.resultadoBusca.resumoFalha;
+          document.getElementById('impacto').innerText = window.resultadoBusca.impacto;
+          document.getElementById('dataFinal').innerText = window.resultadoBusca.dataFinal;
+          document.getElementById('dataInicio').innerText = window.resultadoBusca.dataInicio;
+
+          document.getElementById('btn-validar-postmortem').style.display = 'block';
+          document.getElementById('resposta_jira').style.display = 'block';
+        })
+        .catch(() => {
+          document.getElementById('resposta_jira').innerHTML = "Sem resposta";
+        })
+        .finally(() => {
+          document.getElementById('btn-buscar-id').value = 'Enviar';
+        });
+    });
+
+  </script>
+  <script src="validacao.js"></script>
+</body>
+
+</html>
